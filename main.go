@@ -42,7 +42,7 @@ func main() {
 	// graph elements will be ordered as in benchmark output by default - unless the order was specified here
 	flag.Var(&oBenchNames, "obn", "comma-separated list of benchmark names")
 	flag.Var(&oBenchArgs, "oba", "comma-separated list of benchmark arguments")
-	title := flag.String("title", "Graph: Benchmark results in ns/op", "title of a graph")
+	title := flag.String("title", "Benchmark results in ns/op", "title of a graph")
 	apiUrl := flag.String("apiurl", "http://benchgraph.codingberg.com", "url to server api")
 	flag.Parse()
 
@@ -73,26 +73,27 @@ func main() {
 
 		// read bench name and arguments
 		if b != nil {
-			name, arg, _, err := parseNameArgThread(b.Name)
+			name, series, arg, _, err := parseNameArgThread(b.Name)
+			fmt.Printf("series: %s, arg: %s", series, arg)
 			if err != nil {
 				mark = red("!")
 				fmt.Printf("%s %s\n", mark, line)
 				continue
 			}
 
-			if !skipBenchNamesParsing && !oBenchNames.stringInList(name) {
-				oBenchNames.Add(name)
+			if !skipBenchNamesParsing && !oBenchNames.stringInList(series) {
+				oBenchNames.Add(series)
 			}
 
 			if !skipBenchArgsParsing && !oBenchArgs.stringInList(arg) {
 				oBenchArgs.Add(arg)
 			}
 
-			if _, ok := benchResults[name]; !ok {
-				benchResults[name] = make(BenchArgSet)
+			if _, ok := benchResults[series]; !ok {
+				benchResults[series] = make(BenchArgSet)
 			}
 
-			benchResults[name][arg] = b.NsPerOp
+			benchResults[series][arg] = b.NsPerOp
 		}
 
 		fmt.Printf("%s %s\n", mark, line)
